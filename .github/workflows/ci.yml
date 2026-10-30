@@ -39,7 +39,7 @@ jobs:
         run: python -m compileall -q app.py desktop_app.py core processor selftest.py smoke_test.py
 
       - name: Import smoke test
-        run: python -c "import core, processor; print('imports ok:', core.APP_NAME, 'v' + str(core.PROJECT_INFO.get('project', {}).get('version', '?')))"
+        run: python -c "import core, processor; print('imports ok:', core.APP_NAME)"
 
       - name: Validate template JSON files
         run: |
