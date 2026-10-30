@@ -20,6 +20,7 @@ htmlcov/
 
 # ---------- 运行时产物 / 用户本地数据（不要提交） ----------
 config/config.ini
+config/presets/
 input/
 output/
 logs/
