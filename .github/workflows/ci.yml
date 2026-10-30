@@ -15,12 +15,17 @@ jobs:
       matrix:
         python-version: [ "3.13" ]
 
+    env:
+      # 避免 Windows 控制台默认 cp1252 打印中文时抛 UnicodeEncodeError
+      PYTHONUTF8: "1"
+      PYTHONIOENCODING: "utf-8"
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
@@ -34,8 +39,8 @@ jobs:
         run: python -m compileall -q app.py desktop_app.py core processor selftest.py smoke_test.py
 
       - name: Import smoke test
-        run: python -c "import core, processor; print('imports ok:', core.APP_DISPLAY_NAME, core.APP_NAME)"
+        run: python -c "import core, processor; print('imports ok:', core.APP_NAME, 'v' + str(core.PROJECT_INFO.get('project', {}).get('version', '?')))"
 
       - name: Validate template JSON files
         run: |
-          python -c "import json,glob,sys; files=glob.glob('config/templates/*.json'); [json.load(open(f,encoding='utf-8')) for f in files]; print('templates ok:', len(files))"
+          python -c "import json,glob; files=sorted(glob.glob('config/templates/*.json')); [json.load(open(f,encoding='utf-8')) for f in files]; print('templates ok:', len(files))"
