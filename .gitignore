@@ -30,6 +30,12 @@ _uidemo/
 _selftest/output/
 _selftest/tmp/
 
+# ---------- 本地开发 / 截图临时 ----------
+.piptmp/
+.pylibs/
+.wheels/
+_runlog/
+
 # ---------- 内置第三方 EXIF 引擎（体积大，属可选安装，见 docs/BUILDING.md） ----------
 /exiftool/
 exiftool.exe
