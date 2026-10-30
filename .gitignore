@@ -1,0 +1,57 @@
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# ---------- 运行时产物 / 用户本地数据（不要提交） ----------
+config/config.ini
+input/
+output/
+logs/
+*.log
+.cwp_write_probe
+.write_probe_*
+_uidemo/
+_selftest/output/
+_selftest/tmp/
+
+# ---------- 内置第三方 EXIF 引擎（体积大，属可选安装，见 docs/BUILDING.md） ----------
+/exiftool/
+exiftool.exe
+
+# ---------- 打包产物 ----------
+*.spec
+CameraWatermarkPro.exe
+CameraWatermarkPro-*.exe
+便携版-*/
+单文件版-*/
+*.zip
+
+# ---------- IDE / 操作系统 ----------
+.vscode/
+.idea/
+*.swp
+*.swo
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# ---------- 本地私密 ----------
+.env
+.env.*
+*.local

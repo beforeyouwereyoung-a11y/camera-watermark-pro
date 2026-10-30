@@ -1,0 +1,43 @@
+Camera Watermark Pro (相机水印工具 Pro)
+Copyright 2026 beforeyouwereyoung-a11y
+
+This product is licensed under the Apache License, Version 2.0 (see the LICENSE
+file). This NOTICE file lists third-party components and important disclaimers.
+
+--------------------------------------------------------------------------
+第三方组件 / Third-party components
+--------------------------------------------------------------------------
+
+1) ExifTool  —  https://exiftool.org/
+   Author: Phil Harvey
+   License: Perl Artistic License 2.0 + GNU GPL v1 (dual)
+   说明：本仓库**不内置** ExifTool 二进制。如需完整写入/读取 EXIF，
+   请按 docs/BUILDING.md 自行安装（放入 exiftool/ 目录或加入系统 PATH）。
+   缺失时程序自动降级为 Pillow 读取常见 EXIF 字段。
+
+2) Pillow (PIL)          — MIT-CMU License
+3) pillow-heif           — BSD-3-Clause
+4) NumPy                 — BSD-3-Clause
+5) Flask                 — BSD-3-Clause
+6) Jinja2                — BSD-3-Clause
+7) pywebview             — BSD-3-Clause
+8) pystray               — LGPL-3.0
+9) loguru                — MIT
+
+字体 / Fonts
+   - Roboto (Roboto-Light/Regular/Medium/Bold.ttf) — Apache License 2.0
+   - Alibaba PuHuiTi 2.0 (阿里巴巴普惠体 2.0，45-Light / 85-Bold)
+       Copyright Alibaba Group. 依据阿里巴巴普惠体许可，可免费用于商业用途；
+       再分发/嵌入前请自行核对其最新许可条款：
+       https://www.alibabafonts.com/
+
+--------------------------------------------------------------------------
+商标声明 / Trademark disclaimer
+--------------------------------------------------------------------------
+config/logos/ 目录中的品牌标识（Canon、Nikon、Sony、Fujifilm、Panasonic、
+Leica、Hasselblad、Pentax、Ricoh、Olympus / OM System、DJI、Apple 等）的
+著作权与商标权均归各自权利人所有。本仓库仅为“摄影作品水印”这一合理用途
+内置这些标识的示意素材，不代表与上述厂商存在任何隶属、赞助或背书关系。
+如权利人提出要求，维护者将移除相关素材。
+
+本软件为独立开源项目，与任何相机 / 手机厂商均无关联。

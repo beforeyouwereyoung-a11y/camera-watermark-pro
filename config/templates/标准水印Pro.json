@@ -1,0 +1,36 @@
+[
+  {
+    "processor_name": "gallery_caption",
+    "background": "#FFFFFF",
+    "pad_x": "{{vwr(2.5)}}",
+    "pad_top": "{{vwr(2.5)}}",
+    "footer_height": "{{vwr(11)}}",
+
+    "brand_text": "{{ camera_brand() }}",
+    "brand_font": "Roboto-Bold.ttf",
+    "brand_color": "#111111",
+    "model_text": "{{ camera_model() }}",
+    "model_font": "Roboto-Regular.ttf",
+    "model_color": "#222222",
+    "title_font_size": "{{vwr(3.2)}}",
+    "title_gap": "{{vwr(1.4)}}",
+    "title_y_ratio": 0.20,
+
+    "meta_text": "{{exif.FocalLengthIn35mmFormat|default('-')|replace(' ','')|replace('mm',' mm')}} · f/{{exif.FNumber or exif.AperatureValue|default('-')}} · {{exif.ShutterSpeed or exif.ShutterSpeedValue|default('-')}} s · ISO {{exif.ISO|default('0')}}",
+    "meta_font": "Roboto-Regular.ttf",
+    "meta_color": "#747474",
+    "meta_font_size": "{{vwr(1.7)}}",
+    "meta_y_ratio": 0.62,
+
+    "date_text": "{{ (exif.DateTimeOriginal or exif.CreateDate or exif.DigitalCreationDate or '0000-00-00')[:10] }}",
+    "date_font": "Roboto-Regular.ttf",
+    "date_color": "#858585",
+    "date_font_size": "{{vwr(1.7)}}",
+
+    "logo": "{{ auto_logo() or '' }}",
+    "logo_size": "{{vwr(5)}}",
+    "logo_size_wide": "{{vwr(9)}}",
+    "logo_aspect_wide": 2.5,
+    "date_logo_gap": "{{vwr(2)}}"
+  }
+]

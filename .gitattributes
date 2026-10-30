@@ -1,0 +1,19 @@
+# 统一换行，避免 Windows / macOS / Linux 协作时满屏 diff
+* text=auto eol=lf
+
+# 二进制资源：不做换行转换、不做文本 diff
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.ico   binary
+*.ttf   binary
+*.otf   binary
+*.woff  binary
+*.woff2 binary
+*.exe   binary
+*.dll   binary
+
+# 让 GitHub 语言统计更准确
+*.js    linguist-detectable=true
+*.css   linguist-detectable=true
+*.html  linguist-detectable=true

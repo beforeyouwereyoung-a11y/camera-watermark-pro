@@ -1,0 +1,64 @@
+[
+  {
+    "processor_name": "rounded_corner",
+    "border_radius": "{{vh(1.2)}}"
+  },
+  {
+    "processor_name": "outline",
+    "outline_width": 1,
+    "outline_color": "#0000001A",
+    "border_radius": "{{vh(1.2)}}"
+  },
+  {
+    "processor_name": "shadow",
+    "shadow_color": "#0A0A0A29",
+    "shadow_radius": "{{vh(3.2)}}",
+    "falloff": "2.4"
+  },
+  {
+    "processor_name": "shadow",
+    "shadow_color": "#0A0A0A59",
+    "shadow_radius": "{{vh(0.8)}}",
+    "falloff": "1.5"
+  },
+  {
+    "processor_name": "watermark",
+    "color": "white",
+    "delimiter_color": "#D8D8D6",
+    "left_margin": "{{vh(3.2)}}",
+    "right_margin": "{{vh(3.2)}}",
+    "top_margin": "{{vh(3.2)}}",
+    "bottom_margin": "{{vh(16)}}",
+    "middle_spacing": "{{vh(1.4)}}",
+    "left_top": {
+      "processor_name": "rich_text",
+      "text": "{{ exif.CameraModelName|default('-') | replace('_', '') }}",
+      "font_path": "AlibabaPuHuiTi-2-85-Bold.otf",
+      "height": "{{vh(3.2)}}",
+      "is_bold": true,
+      "trim": true,
+      "color": "#111111"
+    },
+    "left_bottom": {
+      "processor_name": "rich_text",
+      "text": "{{exif.FocalLengthIn35mmFormat|replace(' ', '')|default('-')}}  f/{{exif.AperatureValue or exif.FNumber|default('-')}}  {{exif.ShutterSpeed or exif.ShutterSpeedValue|default('-')}}s  ISO{{exif.ISO|default('0')}}",
+      "font_path": "AlibabaPuHuiTi-2-45-Light.otf",
+      "height": "{{vh(2.2)}}",
+      "trim": true,
+      "color": "#5C5C5C"
+    },
+    "right_top": {
+      "processor_name": "rich_text",
+      "text": "{{(exif.DateTimeOriginal or exif.CreateDate or exif.DigitalCreationDate or exif.DateCreated or exif.DateTimeCreated or exif.DigitalCreationDateTime|default('0'))[:10]}}",
+      "font_path": "AlibabaPuHuiTi-2-45-Light.otf",
+      "height": "{{vh(2.0)}}",
+      "trim": true,
+      "color": "#9E9E9E"
+    },
+    "right_logo": "{{auto_logo()|replace('\\', '/')}}"
+  },
+  {
+    "processor_name": "margin",
+    "bottom_margin": "{{vh(2)}}"
+  }
+]

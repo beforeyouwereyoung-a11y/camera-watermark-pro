@@ -1,0 +1,75 @@
+name: Bug 报告 · Bug report
+description: 报告一个可以复现的问题
+title: "[Bug] 简要描述"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈！请尽量把信息填完整，方便我们快速定位。
+        提交前请先搜索是否已有相同 Issue。
+        安全漏洞请勿在此公开，见 SECURITY.md。
+
+  - type: input
+    id: version
+    attributes:
+      label: 软件版本
+      description: 见程序顶栏或 Release 标签，例如 3.5.0
+      placeholder: "3.5.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: form
+    attributes:
+      label: 运行形态
+      options:
+        - 便携版（文件夹版 onedir）
+        - 单文件版（onefile）
+        - 从源码运行
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: 操作系统
+      placeholder: "Windows 11 23H2"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      description: 越具体越好（选了什么模板、什么参数、输入了什么类型的图片）
+      placeholder: |
+        1. 打开程序，选择模板 xxx
+        2. 选择输入目录 xxx
+        3. 点击开始处理
+        4. ……
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望结果
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际结果
+      description: 如有报错，请粘贴日志（程序目录下的 logs/app_*.log）或截图
+    validations:
+      required: true
+
+  - type: textarea
+    id: other
+    attributes:
+      label: 其他信息
+      description: 图片格式/尺寸、是否安装 ExifTool、自定义 Logo 等
+    validations:
+      required: false

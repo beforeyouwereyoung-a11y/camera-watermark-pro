@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }}</title>
+  <script>
+    /* 在样式加载前就把主题定下来，避免深色模式下先闪一下白屏。
+       优先级：用户手动选择 > 系统偏好。 */
+    (function () {
+      try {
+        var saved = localStorage.getItem('cwp-theme') || 'light';
+        var dark = saved === 'dark'
+          || (saved === 'auto' && window.matchMedia
+              && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      } catch (e) { /* 忽略 */ }
+    })();
+  </script>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark"></span>
+    <div>
+      <div class="brand-name">{{ title }}</div>
+      <div class="brand-sub">v<span id="appVersion">-</span> · <span id="modeLabel">本地便携版</span></div>
+    </div>
+  </div>
+  <div class="topbar-chips">
+    <span class="chip" id="chipExif">EXIF 引擎检测中…</span>
+    <span class="chip" id="chipPerf">性能设置</span>
+    <span class="chip" id="chipData">数据目录</span>
+  </div>
+  <div class="topbar-actions">
+    <div class="segmented segmented-xs" id="themeSwitch" title="界面主题">
+      <button class="seg-btn" data-theme="light" type="button">浅色</button>
+      <button class="seg-btn" data-theme="dark" type="button">深色</button>
+      <button class="seg-btn" data-theme="auto" type="button">跟随系统</button>
+    </div>
+    <button class="btn btn-ghost" id="btnOpenOutputTop" type="button">打开输出目录</button>
+    <button class="btn btn-ghost" id="btnLog" type="button">运行日志</button>
+  </div>
+</header>
+
+<main class="layout">
+
+  <!-- ================= 左：设置 ================= -->
+  <aside class="panel panel-settings">
+    <div class="panel-head">
+      <h2>处理设置</h2>
+      <button class="btn btn-mini" id="btnReset" type="button">重置</button>
+    </div>
+    <div class="panel-body">
+
+      <!-- 预设方案 -->
+      <section class="block">
+        <div class="block-head-row">
+          <label class="block-title">预设方案</label>
+          <span class="block-head-actions">
+            <button class="btn btn-mini" id="btnPresetSave" type="button">存为预设</button>
+            <button class="btn btn-mini" id="btnPresetRefresh" type="button">刷新</button>
+          </span>
+        </div>
+        <div class="preset-strip" id="presetStrip"></div>
+        <p class="hint">点一下即可套用整套参数（水印方式 + 画幅 + 输出规则 + Logo）。</p>
+      </section>
+
+      <section class="block">
+        <label class="block-title">水印方式</label>
+        <div class="segmented" id="modeSwitch">
+          <button class="seg-btn is-active" data-mode="template" type="button">模板水印</button>
+          <button class="seg-btn" data-mode="simple" type="button">自定义文字</button>
+        </div>
+      </section>
+
+      <!-- 模板 -->
+      <section class="block" id="blockTemplate">
+        <label class="block-title">选择模板</label>
+        <div class="tpl-grid" id="tplGrid"></div>
+        <div class="row row-tight">
+          <button class="btn btn-mini" id="btnTplRefresh" type="button">刷新列表</button>
+          <button class="btn btn-mini" id="btnTplSaveAs" type="button">另存为新模板</button>
+          <button class="btn btn-mini btn-accent-soft" id="btnOpenEditor" type="button">可视化编辑</button>
+        </div>
+      </section>
+
+      <!-- 自定义文字水印 -->
+      <section class="block hidden" id="blockSimple">
+        <label class="block-title">水印文字</label>
+        <textarea class="input" id="swText" rows="2" placeholder="例如：© 2026 张三 · 摄于西湖"></textarea>
+        <p class="hint">可用占位符：<code>{name}</code> 文件名、<code>{date}</code> 拍摄日期</p>
+
+        <label class="block-title mt">位置</label>
+        <div class="pos-grid" id="swPosition">
+          <button data-pos="top_left" type="button"></button><button data-pos="top_center" type="button"></button><button data-pos="top_right" type="button"></button>
+          <button data-pos="middle_left" type="button"></button><button data-pos="center" type="button"></button><button data-pos="middle_right" type="button"></button>
+          <button data-pos="bottom_left" type="button"></button><button data-pos="bottom_center" type="button"></button><button data-pos="bottom_right" class="is-active" type="button"></button>
+        </div>
+
+        <div class="field">
+          <label>字号 <span class="val" id="swHeightVal">3.5%</span></label>
+          <input type="range" id="swHeight" min="1" max="12" step="0.5" value="3.5">
+        </div>
+        <div class="field">
+          <label>不透明度 <span class="val" id="swOpacityVal">85%</span></label>
+          <input type="range" id="swOpacity" min="5" max="100" step="5" value="85">
+        </div>
+        <div class="field">
+          <label>旋转 <span class="val" id="swAngleVal">0°</span></label>
+          <input type="range" id="swAngle" min="-90" max="90" step="1" value="0">
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label>文字颜色</label>
+            <input type="color" id="swColor" value="#ffffff">
+          </div>
+          <div class="field">
+            <label>描边颜色</label>
+            <input type="color" id="swStroke" value="#000000">
+          </div>
+        </div>
+        <div class="field">
+          <label>描边宽度 <span class="val" id="swStrokeVal">0px</span></label>
+          <input type="range" id="swStrokeWidth" min="0" max="10" step="1" value="0">
+        </div>
+        <label class="check">
+          <input type="checkbox" id="swTile">
+          <span>平铺水印（铺满整张图，适合防盗图）</span>
+        </label>
+      </section>
+
+      <!-- 自定义 Logo -->
+      <section class="block">
+        <button class="collapse-head" id="logoToggle" type="button">
+          <span>自定义 Logo（叠加在成片上）</span><span class="caret">▾</span>
+        </button>
+        <div class="collapse-body hidden" id="logoBody">
+          <div class="input-row">
+            <select class="input" id="logoSelect"></select>
+            <button class="btn btn-mini" id="btnLogoUpload" type="button">上传</button>
+            <button class="btn btn-mini" id="btnLogoDelete" type="button" title="删除选中的 Logo">删除</button>
+          </div>
+          <input type="file" id="logoFile" accept="image/png,image/jpeg,image/webp,image/bmp,image/gif" class="hidden">
+          <div class="field mt">
+            <label>大小 <span class="val" id="logoScaleVal">100%</span></label>
+            <input type="range" id="logoScale" min="10" max="300" step="5" value="100">
+          </div>
+          <div class="field">
+            <label>不透明度 <span class="val" id="logoOpacityVal">100%</span></label>
+            <input type="range" id="logoOpacity" min="5" max="100" step="5" value="100">
+          </div>
+          <div class="field">
+            <label>位置</label>
+            <div class="chips-wrap" id="logoCorner">
+              <button class="chip-btn" data-corner="top_left" type="button">左上</button>
+              <button class="chip-btn" data-corner="top_right" type="button">右上</button>
+              <button class="chip-btn" data-corner="bottom_left" type="button">左下</button>
+              <button class="chip-btn is-active" data-corner="bottom_right" type="button">右下</button>
+              <button class="chip-btn" data-corner="center" type="button">居中</button>
+            </div>
+          </div>
+          <p class="hint" id="logoHint">未选择 Logo 时不会叠加任何内容。</p>
+        </div>
+      </section>
+
+      <!-- 裁切 -->
+      <section class="block">
+        <button class="collapse-head" id="cropToggle" type="button">
+          <span>画幅裁切</span><span class="caret">▾</span>
+        </button>
+        <div class="collapse-body hidden" id="cropBody">
+          <div class="chips-wrap" id="cropPresets">
+            <button class="chip-btn is-active" data-crop="none" type="button">原图</button>
+            <button class="chip-btn" data-crop="1:1" type="button">1:1</button>
+            <button class="chip-btn" data-crop="4:5" type="button">4:5</button>
+            <button class="chip-btn" data-crop="3:4" type="button">3:4</button>
+            <button class="chip-btn" data-crop="2:3" type="button">2:3</button>
+            <button class="chip-btn" data-crop="3:2" type="button">3:2</button>
+            <button class="chip-btn" data-crop="16:9" type="button">16:9</button>
+            <button class="chip-btn" data-crop="9:16" type="button">9:16</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 输出规则 -->
+      <section class="block">
+        <button class="collapse-head" id="outToggle" type="button">
+          <span>输出规则</span><span class="caret">▾</span>
+        </button>
+        <div class="collapse-body hidden" id="outBody">
+          <div class="grid-2">
+            <div class="field">
+              <label>输出格式</label>
+              <select class="input" id="outFormat">
+                <option value="original">保持原格式</option>
+                <option value="jpg">JPG</option>
+                <option value="png">PNG</option>
+                <option value="webp">WebP</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>长边限制</label>
+              <input class="input" type="number" id="outLongEdge" min="0" step="100" value="0" placeholder="0 = 不限">
+            </div>
+          </div>
+          <div class="field">
+            <label>JPEG 质量 <span class="val" id="outQualityVal">100</span></label>
+            <input type="range" id="outQuality" min="40" max="100" step="1" value="100">
+          </div>
+          <div class="field">
+            <label>命名规则</label>
+            <input class="input" id="outName" value="{name}_{template}" placeholder="{name}_{template}">
+            <p class="hint">占位符：<code>{name}</code> 原名、<code>{template}</code> 模板名、<code>{index3}</code> 三位序号、<code>{date}</code> 拍摄日期</p>
+            <p class="hint">带 <code>{template}</code> 时，同一张照片换模板会重新输出而不是被跳过。</p>
+          </div>
+          <label class="check">
+            <input type="checkbox" id="outExif" checked>
+            <span>保留 EXIF 拍摄信息</span>
+          </label>
+          <label class="check">
+            <input type="checkbox" id="outOverride">
+            <span>覆盖已存在的输出文件</span>
+          </label>
+        </div>
+      </section>
+
+      <!-- 目录 -->
+      <section class="block">
+        <label class="block-title">目录</label>
+        <div class="field">
+          <label>输入文件夹</label>
+          <div class="input-row">
+            <input class="input" id="inFolder" placeholder="选择输入目录">
+            <button class="btn btn-mini" data-pick="inFolder" type="button">浏览</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>输出文件夹</label>
+          <div class="input-row">
+            <input class="input" id="outFolder" placeholder="选择输出目录">
+            <button class="btn btn-mini" data-pick="outFolder" type="button">浏览</button>
+          </div>
+          <div class="hint warn-box hidden" id="outFolderNote">
+            <span id="outFolderNoteText"></span>
+            <button class="btn btn-mini" id="btnFixOutput" type="button">一键改为「输入目录\水印输出」</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 性能 -->
+      <section class="block">
+        <button class="collapse-head" id="perfToggle" type="button">
+          <span>性能 · 多进程与缓存</span><span class="caret">▾</span>
+        </button>
+        <div class="collapse-body hidden" id="perfBody">
+          <div class="field">
+            <label>并行处理</label>
+            <select class="input" id="perfWorkers">
+              <option value="auto">自动（按 CPU 核数，推荐）</option>
+              <option value="serial">串行（最省内存）</option>
+              <option value="2">2 进程</option>
+              <option value="4">4 进程</option>
+              <option value="6">6 进程</option>
+              <option value="8">8 进程</option>
+            </select>
+            <p class="hint" id="perfWorkersHint"></p>
+          </div>
+          <div class="field">
+            <label>EXIF 缓存条目 <span class="val" id="perfCacheVal">2048</span></label>
+            <input type="range" id="perfCache" min="128" max="8192" step="128" value="2048">
+          </div>
+          <div class="field">
+            <label>预览长边 <span class="val" id="perfPreviewVal">1400</span></label>
+            <input type="range" id="perfPreview" min="600" max="2400" step="100" value="1400">
+            <p class="hint">越小预览越快；调大能看清更细的水印效果。</p>
+          </div>
+          <div class="row row-tight">
+            <button class="btn btn-mini" id="btnPerfProbe" type="button">性能自检</button>
+            <button class="btn btn-mini" id="btnCacheClear" type="button">清空 EXIF 缓存</button>
+          </div>
+          <p class="hint" id="perfStatus">点「性能自检」可确认当前环境能否多进程加速。</p>
+        </div>
+      </section>
+
+      <!-- 高级 -->
+      <section class="block">
+        <button class="collapse-head" id="advToggle" type="button">
+          <span>高级 · 模板 JSON 编辑器</span><span class="caret">▾</span>
+        </button>
+        <div class="collapse-body hidden" id="advBody">
+          <textarea class="input code" id="advJson" rows="12" spellcheck="false"></textarea>
+          <div class="row row-tight">
+            <button class="btn btn-mini" id="btnJsonValidate" type="button">校验</button>
+            <button class="btn btn-mini" id="btnJsonApply" type="button">应用到当前模板</button>
+            <button class="btn btn-mini" id="btnJsonToEditor" type="button">载入可视化编辑器</button>
+          </div>
+          <p class="hint" id="jsonStatus"></p>
+        </div>
+      </section>
+
+    </div>
+  </aside>
+
+  <!-- 拖动可调整左栏宽度（双击复位） -->
+  <div class="splitter" id="splitLeft" role="separator" aria-orientation="vertical"
+       tabindex="0" title="拖动调整左栏宽度，双击复位"></div>
+
+  <!-- ================= 中：文件 ================= -->
+  <section class="panel panel-files">
+    <div class="panel-head">
+      <h2>待处理照片</h2>
+      <div class="head-actions">
+        <span class="counter" id="selCounter">已选 0 / 0</span>
+        <button class="btn btn-mini" id="btnSelectAll" type="button">全选</button>
+        <button class="btn btn-mini" id="btnSelectNone" type="button">取消选择</button>
+        <button class="btn btn-mini" id="btnClearAll" type="button" title="清空照片列表、选择、预览与进度，回到初始状态">清空全部内容</button>
+        <button class="btn btn-mini" id="btnRefresh" type="button">刷新</button>
+      </div>
+    </div>
+    <div class="files-toolbar">
+      <input class="input" id="fileSearch" placeholder="按文件名筛选…">
+    </div>
+    <div class="files-body" id="filesBody">
+      <div class="dropzone" id="dropzone">
+        <div class="dropzone-icon"></div>
+        <p class="dropzone-title">把照片文件夹拖到这里</p>
+        <p class="hint">也可以直接在上方选择输入文件夹后点「刷新」</p>
+      </div>
+      <div class="file-grid" id="fileGrid"></div>
+    </div>
+  </section>
+
+  <!-- 拖动可调整预览栏宽度（双击复位） -->
+  <div class="splitter" id="splitRight" role="separator" aria-orientation="vertical"
+       tabindex="0" title="拖动调整预览栏宽度，双击复位"></div>
+
+  <!-- ================= 右：预览 + 执行 ================= -->
+  <aside class="panel panel-preview">
+    <div class="panel-head">
+      <h2>效果预览</h2>
+      <div class="segmented segmented-sm" id="previewMode">
+        <button class="seg-btn is-active" data-pview="after" type="button">效果</button>
+        <button class="seg-btn" data-pview="compare" type="button">对比</button>
+        <button class="seg-btn" data-pview="before" type="button">原图</button>
+      </div>
+    </div>
+
+    <div class="preview-stage" id="previewStage">
+      <div class="preview-empty" id="previewEmpty">
+        <p>选中左侧任意照片即可预览水印效果</p>
+      </div>
+      <div class="compare hidden" id="compareBox">
+        <img id="imgAfter" alt="效果预览">
+        <div class="compare-before" id="compareBefore"><img id="imgBefore" alt="原图"></div>
+        <div class="compare-handle" id="compareHandle"><span></span></div>
+      </div>
+      <img class="preview-single hidden" id="imgSingle" alt="预览">
+      <div class="preview-loading hidden" id="previewLoading"><span class="spinner"></span><span id="previewLoadingText">渲染中…</span></div>
+    </div>
+
+    <div class="preview-info" id="previewInfo">—</div>
+
+    <div class="run-block">
+      <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+      <div class="run-stats">
+        <div><span class="stat-num" id="statDone">0</span><span class="stat-label">已完成</span></div>
+        <div><span class="stat-num ok" id="statOk">0</span><span class="stat-label">成功</span></div>
+        <div><span class="stat-num warn" id="statSkip">0</span><span class="stat-label">跳过</span></div>
+        <div><span class="stat-num err" id="statFail">0</span><span class="stat-label">失败</span></div>
+      </div>
+      <div class="run-message" id="runMessage">就绪</div>
+      <div class="run-actions">
+        <button class="btn btn-primary" id="btnStart" type="button">开始处理</button>
+        <button class="btn btn-danger hidden" id="btnCancel" type="button">取消</button>
+        <button class="btn btn-ghost" id="btnOpenOutput" type="button">打开输出目录</button>
+        <button class="btn btn-ghost" id="btnViewResult" type="button" disabled>查看结果</button>
+        <button class="btn btn-ghost" id="btnExportReport" type="button" disabled>导出报告</button>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<!-- ================= 处理结果确认面板 ================= -->
+<div class="modal hidden" id="resultModal">
+  <div class="modal-card modal-wide">
+    <div class="modal-head">
+      <h3>处理结果</h3>
+      <span class="modal-sub" id="resultSummary">—</span>
+      <div class="modal-actions">
+        <button class="btn btn-mini" id="btnResultOnlyOk" type="button">只看成功</button>
+        <button class="btn btn-mini" id="btnResultOpenFolder" type="button">打开输出目录</button>
+        <button class="btn btn-mini" id="btnResultExport" type="button">导出报告</button>
+        <button class="btn btn-mini" id="btnResultClose" type="button">关闭</button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="result-grid" id="resultGrid"></div>
+      <div class="empty-tip hidden" id="resultEmpty">本次任务没有产出文件。</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 大图查看 / 单张操作 ================= -->
+<div class="lightbox hidden" id="lightbox">
+  <div class="lightbox-bar">
+    <span class="lightbox-title" id="lightboxTitle">—</span>
+    <div class="lightbox-actions">
+      <button class="btn btn-mini" id="btnLbCompare" type="button">对比原图</button>
+      <button class="btn btn-mini" id="btnLbReveal" type="button">打开所在位置</button>
+      <button class="btn btn-mini" id="btnLbSaveAs" type="button">另存为…</button>
+      <button class="btn btn-mini" id="btnLbClose" type="button">关闭</button>
+    </div>
+  </div>
+  <div class="lightbox-stage" id="lightboxStage">
+    <img id="lightboxImg" alt="查看大图">
+    <img class="hidden" id="lightboxBefore" alt="原图">
+  </div>
+</div>
+
+<!-- ================= 模板可视化编辑器 ================= -->
+<div class="modal hidden" id="editorModal">
+  <div class="modal-card modal-full">
+    <div class="modal-head">
+      <h3>模板可视化编辑器</h3>
+      <span class="modal-sub" id="editorSub">—</span>
+      <div class="modal-actions">
+        <button class="btn btn-mini" id="btnEditorPreview" type="button">刷新预览</button>
+        <button class="btn btn-mini" id="btnEditorRevert" type="button">还原</button>
+        <button class="btn btn-mini" id="btnEditorSaveAs" type="button">另存为模板</button>
+        <button class="btn btn-mini btn-primary" id="btnEditorSave" type="button">保存到当前模板</button>
+        <button class="btn btn-mini" id="btnEditorClose" type="button">关闭</button>
+      </div>
+    </div>
+    <div class="editor-layout">
+      <aside class="editor-col editor-lib">
+        <div class="editor-col-head">
+          <span>处理器库</span>
+          <input class="input input-mini" id="editorSearch" placeholder="搜索…">
+        </div>
+        <div class="editor-lib-list" id="editorLibList"></div>
+      </aside>
+
+      <section class="editor-col editor-canvas">
+        <div class="editor-col-head">
+          <span>处理流程（自上而下执行）</span>
+          <span class="editor-count" id="editorStepCount">0 步</span>
+        </div>
+        <div class="editor-pipeline" id="editorPipeline"></div>
+        <div class="editor-preview-wrap">
+          <div class="editor-preview" id="editorPreview">
+            <span class="editor-preview-ph">选中样张后自动预览</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="editor-col editor-params">
+        <div class="editor-col-head">
+          <span id="editorParamTitle">参数</span>
+        </div>
+        <div class="editor-param-body" id="editorParamBody">
+          <p class="hint">在中间流程里点一个步骤，这里就会显示它的参数。</p>
+        </div>
+      </aside>
+    </div>
+    <div class="editor-foot">
+      <span class="hint" id="editorStatus">—</span>
+    </div>
+  </div>
+</div>
+
+<!-- 日志抽屉 -->
+<div class="drawer hidden" id="logDrawer">
+  <div class="drawer-head">
+    <h3>运行日志</h3>
+    <button class="btn btn-mini" id="btnLogClear" type="button">清空</button>
+    <button class="btn btn-mini" id="btnLogClose" type="button">关闭</button>
+  </div>
+  <div class="drawer-body" id="logBody"></div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
