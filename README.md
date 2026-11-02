@@ -157,6 +157,7 @@ camera-watermark-pro/
 - 提交前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)（分支规范、提交信息、测试要求）；
 - 行为准则见 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)；
 - 发现安全问题请按 [SECURITY.md](SECURITY.md) 私下报告，勿公开 Issue；
+- 维护者发布流程（推送 / 截图 / Release / CI）见 [docs/MAINTAINER.md](docs/MAINTAINER.md)；
 - 好上手的任务会打上 [`good first issue`](https://github.com/beforeyouwereyoung-a11y/camera-watermark-pro/labels/good%20first%20issue) 标签。
 
 ## 📄 许可证

@@ -157,6 +157,7 @@ All contributions are welcome — bug reports, feature requests, docs, code, new
 - Please read [CONTRIBUTING.md](CONTRIBUTING.md) (branch, commit, and test conventions);
 - Our [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) applies to every interaction;
 - For security issues, follow [SECURITY.md](SECURITY.md) and report privately — not in a public issue;
+- Maintainer release workflow (push / screenshots / release / CI) is in [docs/MAINTAINER.md](docs/MAINTAINER.md);
 - Beginner-friendly tasks carry the [`good first issue`](https://github.com/beforeyouwereyoung-a11y/camera-watermark-pro/labels/good%20first%20issue) label.
 
 ## 📄 License
